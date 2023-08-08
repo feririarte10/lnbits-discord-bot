@@ -11,16 +11,18 @@ app.engine(`html`, require(`ejs`).renderFile);
 
 app.get(`/`, (request, response) => response.send(`Root Route`));
 app.get(`/login`, (request, response) => {
-  const redirect_uri = request.protocol + `://` + request.get(`host`) + `/callback`;
-  response.render(__dirname + `/login.html`, {redirect_uri:redirect_uri});
+  const redirect_uri =
+    request.protocol + `://` + request.get(`host`) + `/callback`;
+  response.render(__dirname + `/login.html`, { redirect_uri: redirect_uri });
 });
 
 // Using a controller to serve a view
-app.use(`/callback`, login);      
+app.use(`/callback`, login);
 
 async function login(request, response) {
   const { code } = request.query;
-  const redirect_uri = request.protocol + `://` + request.get(`host`) + `/callback`;
+  const redirect_uri =
+    request.protocol + `://` + request.get(`host`) + `/callback`;
 
   if (code) {
     try {
@@ -35,12 +37,12 @@ async function login(request, response) {
           scope: `identify`,
         }),
         headers: {
-          'Content-Type': `application/x-www-form-urlencoded`,
+          "Content-Type": `application/x-www-form-urlencoded`,
         },
       });
 
       const oauthData = await oauthResult.json();
-      
+
       const userResult = await fetch(`https://discord.com/api/users/@me`, {
         headers: {
           authorization: `${oauthData.token_type} ${oauthData.access_token}`,

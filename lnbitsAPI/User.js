@@ -1,9 +1,10 @@
 const Api = require(`./LnbitsApi.js`);
+const lnurl = require("lnurl-pay");
 
 class UserWallet extends Api {
   constructor(walletAdminKey) {
     super();
-    this.headers = { 'X-Api-Key': `${walletAdminKey}` };
+    this.headers = { "X-Api-Key": `${walletAdminKey}` };
     this.urlPath = `/api/v1`;
   }
 
@@ -20,9 +21,9 @@ class UserWallet extends Api {
       .url(`${this.urlPath}/payments`)
       .headers(this.headers)
       .json({
-        "out": false,
-        "amount": amount,
-        "memo": description
+        out: false,
+        amount: amount,
+        memo: description,
       })
       .post()
       .json();
@@ -33,8 +34,8 @@ class UserWallet extends Api {
       .url(`${this.urlPath}/payments`)
       .headers(this.headers)
       .json({
-        "out": true,
-        "bolt11": bolt11
+        out: true,
+        bolt11: bolt11,
       })
       .post()
       .json();
@@ -45,6 +46,17 @@ class UserWallet extends Api {
       .url(`${this.urlPath}/payments/${paymentHash}`)
       .headers(this.headers)
       .get();
+  }
+
+  createOutgoingInvoice(lnUrlOrAddress, sats) {
+    return lnurl
+      .requestInvoice({
+        lnUrlOrAddress,
+        tokens: sats,
+      })
+      .then((invoice) => {
+        return invoice;
+      });
   }
 }
 

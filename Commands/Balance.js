@@ -11,12 +11,12 @@ class Balance extends Command {
   constructor() {
     super();
     this.name = `balance`;
-    this.description = `Returns the users wallet balance.`;
+    this.description = `Devuelve el saldo de tu billetera.`;
     this.options = [];
   }
 
   async execute(Interaction) {
-    await Interaction.deferReply({ephemeral: true});
+    await Interaction.deferReply({ ephemeral: true });
     const um = new UserManager();
     try {
       const userWallet = await um.getUserWallet(Interaction.user.id);
@@ -25,36 +25,32 @@ class Balance extends Command {
         const uw = new UserWallet(userWallet.adminkey);
         try {
           const userWalletDetails = await uw.getWalletDetails();
-        
-          const walletUrl = `${process.env.LNBITS_HOST}/wallet?usr=${userWallet.user}`;
-    
-          const sats = userWalletDetails.balance/1000;
-          const btc = (sats/100000000).toFixed(8).replace(/\.?0+$/,``);
 
-          const row = new Discord.MessageActionRow()
-            .addComponents([
-              new Discord.MessageButton({
-                label: `Go to my wallet`,
-                emoji: { name: `💰` },
-                style: `LINK`,
-                url: `${walletUrl}`,
-              })
-            ]);
-      
+          const walletUrl = `${process.env.LNBITS_HOST}/wallet?usr=${userWallet.user}`;
+
+          const sats = userWalletDetails.balance / 1000;
+          const btc = (sats / 100000000).toFixed(8).replace(/\.?0+$/, ``);
+
+          const row = new Discord.MessageActionRow().addComponents([
+            new Discord.MessageButton({
+              label: `Ir a mi billetera`,
+              emoji: { name: `💰` },
+              style: `LINK`,
+              url: `${walletUrl}`,
+            }),
+          ]);
 
           Interaction.editReply({
-            content:`Balance: ${sats} Satoshis / ฿${btc}`,
+            content: `Balance: ${sats} satoshis / ฿${btc}`,
             ephemeral: true,
-            components: [row]
+            components: [row],
           });
         } catch (err) {
           console.log(err);
         }
-        
-      }
-      else {
+      } else {
         Interaction.editReply({
-          content:`You do not currently have a wallet you can use /create`,
+          content: `No tienes una billetera`,
           ephemeral: true,
         });
       }

@@ -13,53 +13,60 @@ class PayMe extends Command {
   constructor() {
     super();
     this.name = `payme`;
-    this.description = `Creates an invoice for the users wallet`;
-    this.options = [{
-      name: `amount`,
-      type: `INTEGER`,
-      description: `The amount of satoshis payable in the invoice`,
-      required: true,
-    },{
-      name: `description`,
-      type: `STRING`,
-      description: `The description of the invoice`,
-      required: true,
-    }];
+    this.description = `Crea un invoice a tu billetera`;
+    this.options = [
+      {
+        name: `amount`,
+        type: `INTEGER`,
+        description: `La cantidad de satoshis a pagar en la factura`,
+        required: true,
+      },
+      {
+        name: `description`,
+        type: `STRING`,
+        description: `La descripción de la factura.`,
+        required: true,
+      },
+    ];
   }
 
   async execute(Interaction) {
-
     const amount = Interaction.options.get(`amount`);
     const description = Interaction.options.get(`description`);
     let member;
 
     if (amount.value <= 0) {
       Interaction.reply({
-        content: `Negative balances are not permitted`,
-        ephemeral: true
+        content: `No se permiten saldos negativos`,
+        ephemeral: true,
       });
       return;
     }
-    
+
     await Interaction.deferReply();
     try {
       member = await Interaction.guild.members.fetch(Interaction.user.id);
-    } catch(err) {
+    } catch (err) {
       console.log(err);
     }
 
     try {
       const um = new UserManager();
       const userWallet = await um.getUserWallet(member.user.id);
-      
+
       const uw = new UserWallet(userWallet.adminkey);
-      const invoiceDetails = await uw.createInvote(amount.value, description.value);
-   
+      const invoiceDetails = await uw.createInvote(
+        amount.value,
+        description.value
+      );
+
       const qrData = await QRCode.toDataURL(invoiceDetails.payment_request);
       const buffer = new Buffer.from(qrData.split(`,`)[1], `base64`);
       const file = new Discord.MessageAttachment(buffer, `image.png`);
-      const embed = new Discord.MessageEmbed().setImage(`attachment://image.png`).addField(`Payment Request`, `${invoiceDetails.payment_request}`, true);
-  
+      const embed = new Discord.MessageEmbed()
+        .setImage(`attachment://image.png`)
+        .addField(`Payment Request`, `${invoiceDetails.payment_request}`, true);
+
       // const row = new Discord.MessageActionRow()
       //   .addComponents([
       //     new Discord.MessageButton({
@@ -70,8 +77,8 @@ class PayMe extends Command {
       //     })
       //   ]);
       // Interaction.editReply({ embeds: [embed], files: [file], components: [row]});
-      Interaction.editReply({ embeds: [embed], files: [file]});
-    } catch(err) {
+      Interaction.editReply({ embeds: [embed], files: [file] });
+    } catch (err) {
       console.log(err);
     }
   }

@@ -4,42 +4,46 @@ class UserManager extends Api {
   constructor() {
     super();
     this.urlPath = `/discordbot/api/v1`;
-    this.headers = { 'X-Api-Key': `${process.env.LNBITS_ADMIN_API_KEY}` };
+    this.headers = { "X-Api-Key": `${process.env.LNBITS_ADMIN_API_KEY}` };
   }
 
   async getOrCreateWallet(username, discordId) {
     const walletData = await this.getUserWallet(discordId);
+
     if (walletData.id) return walletData;
-    else {
-      await this.createUserWallet(username, discordId).json();
-      const createdWalletData = await this.getUserWallet(discordId);
-      return createdWalletData;
-    }
+
+    const wallet = await this.createUserWallet(username, discordId).json();
+    console.log(wallet);
+
+    const createdWalletData = await this.getUserWallet(discordId);
+    return createdWalletData;
   }
 
   async getLnbitsUser(discordId) {
-    const userObj = await this.getUsers().json(json => {
-      const result = json.filter(obj => {
+    const userObj = await this.getUsers().json((json) => {
+      const result = json.filter((obj) => {
         return obj.discord_id === discordId;
       });
 
       return result[0];
     });
+
     return userObj;
   }
 
   async getUserWallet(discordId) {
     const userObj = await this.getLnbitsUser(discordId);
     let response = {
-      id: false
+      id: false,
     };
+
     if (userObj) {
       let userWallet = await this.getWallets(userObj.id);
       response = userWallet[0];
-    }
-    else {
+    } else {
       console.log(`User ${discordId} does not have a wallet`);
     }
+
     return response;
   }
 
@@ -62,7 +66,8 @@ class UserManager extends Api {
     return this.externalApi
       .url(`${this.urlPath}/wallets/${userId}`)
       .headers(this.headers)
-      .get().json();
+      .get()
+      .json();
   }
 
   /* istanbul ignore next */
@@ -78,10 +83,10 @@ class UserManager extends Api {
       .url(`${this.urlPath}/users`)
       .headers(this.headers)
       .json({
-        "admin_id": `${process.env.LNBITS_ADMIN_USER_ID}`,
-        "user_name": `${username}`,
-        "wallet_name": `${username}-main`,
-        "discord_id": `${userId}`
+        admin_id: `${process.env.LNBITS_ADMIN_USER_ID}`,
+        user_name: `${username}`,
+        wallet_name: `${username}-main`,
+        discord_id: `${userId}`,
       })
       .post();
   }
@@ -92,9 +97,9 @@ class UserManager extends Api {
       .url(`${this.urlPath}/users`)
       .headers(this.headers)
       .json({
-        "admin_id": `${process.env.LNBITS_ADMIN_USER_ID}`,
-        "user_id": `${userId}`,
-        "wallet_name": `${username}-main`
+        admin_id: `${process.env.LNBITS_ADMIN_USER_ID}`,
+        user_id: `${userId}`,
+        wallet_name: `${username}-main`,
       })
       .post();
   }
