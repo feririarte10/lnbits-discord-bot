@@ -10,7 +10,7 @@ class Help extends Command {
   constructor() {
     super();
     this.name = `help`;
-    this.description = `Obtener ayuda`;
+    this.description = `Obtener ayuda sobre los comandos.`;
     this.options = [];
   }
 

@@ -13,12 +13,12 @@ class PayMe extends Command {
   constructor() {
     super();
     this.name = `payme`;
-    this.description = `Crea un invoice a tu billetera`;
+    this.description = `Crea un invoice a tu billetera que cualquiera puede pagar.`;
     this.options = [
       {
         name: `amount`,
         type: `INTEGER`,
-        description: `La cantidad de satoshis a pagar en la factura`,
+        description: `La cantidad de satoshis a pagar en la factura.`,
         required: true,
       },
       {

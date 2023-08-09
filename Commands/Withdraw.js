@@ -59,7 +59,7 @@ class Withdraw extends Command {
 
             if (payment) {
               Interaction.editReply({
-                content: `Enviaste ${amount} satoshis a ${address}`,
+                content: `Enviaste ${amount} satoshis a ${address} desde tu billetera`,
                 ephemeral: true,
               });
             }
