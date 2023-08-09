@@ -6,10 +6,10 @@ const dedent = require(`dedent-js`);
 This command will show the help message
 */
 
-class Help extends Command {
+class Ayuda extends Command {
   constructor() {
     super();
-    this.name = `help`;
+    this.name = `ayuda`;
     this.description = `Obtener ayuda sobre los comandos.`;
     this.options = [];
   }
@@ -56,4 +56,4 @@ class Help extends Command {
   }
 }
 
-module.exports = Help;
+module.exports = Ayuda;

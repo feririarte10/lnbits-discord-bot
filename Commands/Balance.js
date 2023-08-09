@@ -2,6 +2,7 @@ const Discord = require(`discord.js`);
 const Command = require(`./Command.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
+const { formatter } = require("../utils/helperFormatter.js");
 
 /*
 This command will show the balance of the mentioned user
@@ -28,7 +29,7 @@ class Balance extends Command {
           const walletUrl = `${process.env.LNBITS_HOST}/wallet?usr=${userWallet.user}`;
 
           const sats = userWalletDetails.balance / 1000;
-          const btc = (sats / 100000000).toFixed(8).replace(/\.?0+$/, ``);
+          // const btc = (sats / 100000000).toFixed(8).replace(/\.?0+$/, ``);
 
           const row = new Discord.MessageActionRow().addComponents([
             new Discord.MessageButton({
@@ -40,7 +41,7 @@ class Balance extends Command {
           ]);
 
           Interaction.editReply({
-            content: `Balance: ${sats} satoshis / ฿${btc}`,
+            content: `Balance: ${formatter(0, 2).format(sats)} satoshis`,
             ephemeral: true,
             components: [row],
           });

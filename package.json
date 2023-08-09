@@ -18,6 +18,7 @@
     "express": "^4.17.1",
     "lnurl-pay": "^2.3.0",
     "node-fetch": "^2.6.1",
+    "pm2": "^5.3.0",
     "qrcode": "^1.4.4",
     "winston": "^3.3.3",
     "wretch": "^1.7.5"

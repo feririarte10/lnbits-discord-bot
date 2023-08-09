@@ -46,8 +46,8 @@ class Zap extends Command {
     }
 
     const sats = amount.value;
-    const btc = (sats / 100000000).toFixed(8).replace(/\.?0+$/, ``);
-    const valueString = `${sats} satoshis / ฿${btc}`;
+    // const btc = (sats / 100000000).toFixed(8).replace(/\.?0+$/, ``);
+    // const valueString = `${sats} satoshis / ฿${btc}`;
 
     const senderData = await Interaction.guild.members.fetch(sender.user.id);
     const receiverData = await Interaction.guild.members.fetch(
@@ -89,6 +89,7 @@ class Zap extends Command {
         amount.value,
         message.value
       );
+
       const invoicePaymentDetails = await senderWallet.payInvoice(
         invoiceDetails.payment_request
       );
@@ -102,7 +103,7 @@ class Zap extends Command {
       // });
 
       await Interaction.editReply({
-        content: `${senderData.toString()} envió ${valueString} a ${receiverData.toString()}`,
+        content: `${senderData.toString()} envió ${sats} satoshis a ${receiverData.toString()}`,
       });
     } catch (err) {
       console.log(err);

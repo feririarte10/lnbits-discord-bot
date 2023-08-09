@@ -2,15 +2,16 @@ const Discord = require(`discord.js`);
 const Command = require(`./Command.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
+const { formatter } = require("../utils/helperFormatter.js");
 
 /*
 This command will show the balance of the mentioned user
 */
 
-class Donate extends Command {
+class Donar extends Command {
   constructor() {
     super();
-    this.name = `donate`;
+    this.name = `donar`;
     this.description = `Realiza donaciones al pozo de la crypta.`;
     this.options = [
       {
@@ -26,7 +27,11 @@ class Donate extends Command {
     await Interaction.deferReply();
     const um = new UserManager();
     try {
+      const senderData = await Interaction.guild.members.fetch(
+        Interaction.user.id
+      );
       const userWallet = await um.getUserWallet(Interaction.user.id);
+
       if (userWallet.adminkey) {
         const uw = new UserWallet(userWallet.adminkey);
         try {
@@ -62,7 +67,10 @@ class Donate extends Command {
 
               if (payment) {
                 Interaction.editReply({
-                  content: `@${Interaction.user.username} ha donado ${amount.value} satoshis al pozo!`,
+                  content: `${senderData.toString()} ha donado ${formatter(
+                    0,
+                    2
+                  ).format(amount.value)} satoshis al pozo!`,
                 });
                 return;
               }
@@ -90,4 +98,4 @@ class Donate extends Command {
   }
 }
 
-module.exports = Donate;
+module.exports = Donar;

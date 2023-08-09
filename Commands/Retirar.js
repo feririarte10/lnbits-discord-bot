@@ -2,11 +2,11 @@ const Command = require(`./Command.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
 
-class Withdraw extends Command {
+class Retirar extends Command {
   constructor() {
     super();
-    this.name = `withdraw`;
-    this.description = `Envía satoshis a una dirección.`;
+    this.name = `retirar`;
+    this.description = `Retira satoshis a una cuenta externa a discord`;
     this.options = [
       {
         name: `address`,
@@ -79,8 +79,12 @@ class Withdraw extends Command {
       }
     } catch (err) {
       console.log(err);
+      Interaction.editReply({
+        content: `Ocurrió un error`,
+        ephemeral: true,
+      });
     }
   }
 }
 
-module.exports = Withdraw;
+module.exports = Retirar;

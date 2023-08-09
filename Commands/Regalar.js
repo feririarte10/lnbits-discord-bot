@@ -9,23 +9,17 @@ const dedent = require(`dedent-js`);
 This command will create an invoice for a user allowing anyone to claim it.
 */
 
-class Give extends Command {
+class Regalar extends Command {
   constructor() {
     super();
-    this.name = `give`;
-    this.description = `Crea una factura abierta para que cualquiera pueda reclamar.`;
+    this.name = `regalar`;
+    this.description = `Crea una factura abierta que cualquier usuario puede reclamar (se descontará de tu saldo)`;
     this.options = [
       {
         name: `amount`,
         type: `INTEGER`,
-        description: `La cantidad de satoshis a pagar en la factura`,
+        description: `La cantidad de satoshis a regalar en la factura`,
         required: true,
-      },
-      {
-        name: `description`,
-        type: `STRING`,
-        description: `Descripción de la donación`,
-        required: false,
       },
     ];
   }
@@ -66,14 +60,14 @@ class Give extends Command {
 
       const lnurlw = new LNURLw(userWallet.adminkey);
       const withdrawlLink = await lnurlw.createWithdrawlLink(
-        description.value ?? `Retiro de ${amount.value} sats`,
+        `Retiro de ${amount.value} sats - ${Interaction.user.username}`,
         amount.value
       );
 
       const row = new Discord.MessageActionRow().addComponents([
         new Discord.MessageButton({
           custom_id: `claim`,
-          label: `Reclamar los satoshis!`,
+          label: `Reclamar satoshis`,
           emoji: { name: `💸` },
           style: `SECONDARY`,
         }),
@@ -81,16 +75,17 @@ class Give extends Command {
 
       const msgContent = dedent(`
         ${Interaction.user.username} está regalando ${amount.value} satoshis!
-        
-        Descripción: ${description.value}
         LNURL: \`${withdrawlLink.lnurl}\`
         `);
 
       Interaction.editReply({ content: msgContent, components: [row] });
     } catch (err) {
       console.log(err);
+      Interaction.editReply({
+        content: `Ocurrió un error`,
+      });
     }
   }
 }
 
-module.exports = Give;
+module.exports = Regalar;
