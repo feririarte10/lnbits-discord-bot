@@ -9,18 +9,24 @@ class InteractionHandler {
     this.client = client;
 
     fs.readdirSync(`./Commands`)
-      .filter(file => file.endsWith(`.js`))
-      .filter(file => file !== `Command.js`)
-      .map(file => require(`./Commands/${file}`))
-      .filter(cmd => cmd.name)
-      .forEach(cmd => this.commands.set(cmd.name.toLowerCase(), new cmd()), this);
+      .filter((file) => file.endsWith(`.js`))
+      .filter((file) => file !== `Command.js`)
+      .map((file) => require(`./Commands/${file}`))
+      .filter((cmd) => cmd.name)
+      .forEach(
+        (cmd) => this.commands.set(cmd.name.toLowerCase(), new cmd()),
+        this
+      );
 
     fs.readdirSync(`./Buttons`)
-      .filter(file => file.endsWith(`.js`))
-      .filter(file => file !== `Button.js`)
-      .map(file => require(`./Buttons/${file}`))
-      .filter(cmd => cmd.name)
-      .forEach(cmd => this.buttons.set(cmd.name.toLowerCase(), new cmd()), this);
+      .filter((file) => file.endsWith(`.js`))
+      .filter((file) => file !== `Button.js`)
+      .map((file) => require(`./Buttons/${file}`))
+      .filter((cmd) => cmd.name)
+      .forEach(
+        (cmd) => this.buttons.set(cmd.name.toLowerCase(), new cmd()),
+        this
+      );
   }
 
   /**
@@ -30,11 +36,11 @@ class InteractionHandler {
     // TODO: Loop over guilds?
     const data = [];
 
-    this.commands.forEach(async cmd => {
+    this.commands.forEach(async (cmd) => {
       data.push({
         name: cmd.name,
         description: cmd.description,
-        options: cmd.options
+        options: cmd.options,
       });
     });
 
@@ -48,18 +54,18 @@ class InteractionHandler {
   async updateCommands() {
     const data = [];
 
-    this.commands.forEach(async cmd => {
+    this.commands.forEach(async (cmd) => {
       data.push({
         name: cmd.name,
         description: cmd.description,
-        options: cmd.options
+        options: cmd.options,
       });
     });
 
     // Loop over guilds?
-    this.client.guilds.cache.forEach(async guild => {
+    this.client.guilds.cache.forEach(async (guild) => {
       await guild.commands.set(data);
-    }); 
+    });
   }
 
   /**
@@ -67,7 +73,7 @@ class InteractionHandler {
    * @param {Interaction} Interaction The Discord interaction object
    */
   handleInteraction(Interaction) {
-    if (Interaction.commandName == `help`){
+    if (Interaction.commandName == `help`) {
       const command = this.commands.get(`help`);
       command.execute(Interaction, this.commands);
     } else if (Interaction.isCommand()) {

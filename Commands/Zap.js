@@ -2,7 +2,7 @@ const Command = require(`./Command.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
 
-class Tip extends Command {
+class Zap extends Command {
   constructor() {
     super();
     this.name = `zap`;
@@ -110,4 +110,4 @@ class Tip extends Command {
   }
 }
 
-module.exports = Tip;
+module.exports = Zap;

@@ -12,13 +12,13 @@ class Bot {
    * @constructor
    */
   constructor() {
-    this.client = new Discord.Client({ 
+    this.client = new Discord.Client({
       partials: [`CHANNEL`, `MESSAGE`, `REACTION`, `USER`],
       intents: [
         Discord.Intents.FLAGS.GUILDS,
-        Discord.Intents.FLAGS.GUILD_MESSAGES, 
-        Discord.Intents.FLAGS.GUILD_MEMBERS
-      ]
+        Discord.Intents.FLAGS.GUILD_MESSAGES,
+        Discord.Intents.FLAGS.GUILD_MEMBERS,
+      ],
     });
     this.InteractionHandler = new InteractionHandler(this.client);
     this.MessageHandler = new MessageHandler();
@@ -35,7 +35,10 @@ class Bot {
     this.client.on(`interactionCreate`, this.onInteraction.bind(this));
     this.client.on(`messageCreate`, this.onMessage.bind(this));
     this.client.on(`messageReactionAdd`, this.onMessageReactionAdd.bind(this));
-    this.client.on(`messageReactionRemove`, this.onMessageReactionRemove.bind(this));
+    this.client.on(
+      `messageReactionRemove`,
+      this.onMessageReactionRemove.bind(this)
+    );
   }
 
   /**
@@ -61,14 +64,13 @@ class Bot {
     this.InteractionHandler.handleInteraction(Interaction);
   }
 
-
   /**
    * Passes message events to the MessageHandler.
    * @param {Message} Message The Discord message object.
    */
   onMessage(Message) {
     if (
-      Message.content.toLowerCase() === `!deploy` && 
+      Message.content.toLowerCase() === `!deploy` &&
       Message.author.id === `177898294939222016`
     ) {
       this.InteractionHandler.createCommands();
@@ -106,7 +108,9 @@ class Bot {
    */
   onReady() {
     this.InteractionHandler.updateCommands();
-    console.log(`Connected to Discord as ${this.client.user.username}#${this.client.user.discriminator} <@${this.client.user.id}>`);
+    console.log(
+      `Connected to Discord as ${this.client.user.username}#${this.client.user.discriminator} <@${this.client.user.id}>`
+    );
     console.log(`Using lnbits host: ${process.env.LNBITS_HOST}`);
   }
 }

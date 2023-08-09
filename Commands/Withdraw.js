@@ -2,10 +2,10 @@ const Command = require(`./Command.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
 
-class Send extends Command {
+class Withdraw extends Command {
   constructor() {
     super();
-    this.name = `send`;
+    this.name = `withdraw`;
     this.description = `Envía satoshis a una dirección.`;
     this.options = [
       {
@@ -83,4 +83,4 @@ class Send extends Command {
   }
 }
 
-module.exports = Send;
+module.exports = Withdraw;
