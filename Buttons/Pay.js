@@ -20,11 +20,11 @@ class Pay extends Button {
 
     try {
       const payUrl = Interaction.message.embeds[0].fields.find(
-        (field) => field.name === "Payment Request"
+        (field) => field.name === "Solicitud de pago"
       );
 
       const amountOnSats = Interaction.message.embeds[0].fields.find(
-        (field) => field.name === "amount"
+        (field) => field.name === "monto (sats)"
       );
 
       if (payUrl) {

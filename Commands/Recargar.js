@@ -58,8 +58,12 @@ class Recargar extends Command {
       const file = new Discord.MessageAttachment(buffer, `image.png`);
       const embed = new Discord.MessageEmbed()
         .setImage(`attachment://image.png`)
-        .addField(`Payment Request`, `${invoiceDetails.payment_request}`, true)
-        .addField(`amount`, `${amount.value}`, false);
+        .addField(
+          `Solicitud de pago`,
+          `${invoiceDetails.payment_request}`,
+          true
+        )
+        .addField(`monto`, `${amount.value}`, false);
 
       Interaction.editReply({
         embeds: [embed],

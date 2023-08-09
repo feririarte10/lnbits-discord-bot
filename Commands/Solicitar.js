@@ -65,8 +65,17 @@ class Solicitar extends Command {
       // const file = new Discord.MessageAttachment(buffer, `image.png`);
       const embed = new Discord.MessageEmbed()
         // .setImage(`attachment://image.png`)
-        .addField(`Payment Request`, `${invoiceDetails.payment_request}`, true)
-        .addField(`amount`, `${amount.value}`, false);
+        .setAuthor({
+          name: "LNBot",
+          iconURL:
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Lightning_Network.svg/2048px-Lightning_Network.svg.png",
+        })
+        .addField(
+          `Solicitud de pago`,
+          `${invoiceDetails.payment_request}`,
+          true
+        )
+        .addField(`monto (sats)`, `${amount.value}`, false);
 
       const row = new Discord.MessageActionRow().addComponents([
         new Discord.MessageButton({

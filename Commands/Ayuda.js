@@ -17,7 +17,7 @@ class Ayuda extends Command {
   async execute(Interaction, commands) {
     let cmdOutput = ``;
     commands.forEach(async (cmd) => {
-      if (cmd.name != `help`) {
+      if (cmd.name != `ayuda`) {
         let params = ``;
         cmd.options.forEach(async (opt) => {
           params += `${opt.name}: <${opt.type}> `;
@@ -31,25 +31,25 @@ class Ayuda extends Command {
 
     const embed = new Discord.MessageEmbed()
       .setColor(`#0099ff`)
-      .setTitle(`Lightning.bot`)
-      .setURL(`https://lightning.bot`)
+      .setAuthor({
+        name: "LNBot",
+        iconURL:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Lightning_Network.svg/2048px-Lightning_Network.svg.png",
+      })
+      .setURL(`https://wallet.lacrypta.ar`)
       .setDescription(
         dedent(`
-    Source code: https://github.com/chrislennon/lnbits-discord-bot
-
-    This bot allows you to interact with others users using the power of Bitcoins lightning network.
-
-    You can learn more at https://lightning.how
+    Este bot le permite interactuar con otros usuarios utilizando el poder de la red lightning. Ya tienes una billetera asociada a tu usuario, puedes utilizarla con los comandos que se definen a continuación:
     `)
       )
       .addFields(
         { name: `\u200B`, value: `\u200B` },
         {
-          name: `IMPORTANT INFORMATION`,
-          value: `This is a custodial service, you do not control your money until you withdrawn it!`,
+          name: `INFORMACIÓN IMPORTANTE`,
+          value: `¡Este es un servicio de custodia, no controlas tu dinero hasta que lo retiras!`,
         },
         { name: `\u200B`, value: `\u200B` },
-        { name: `Commands`, value: cmdOutput }
+        { name: `Comandos`, value: cmdOutput }
       );
 
     Interaction.reply({ embeds: [embed], ephemeral: true });

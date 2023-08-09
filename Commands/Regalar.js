@@ -25,14 +25,8 @@ class Regalar extends Command {
   }
 
   async execute(Interaction) {
-    const description = Interaction.options.get(`description`)
-      ? Interaction.options.get(`description`)
-      : {
-          value: `${Interaction.user.username}[${
-            Interaction.guild.name
-          }] - ${new Date()}`,
-        };
     const amount = Interaction.options.get(`amount`);
+
     let member;
 
     if (amount.value <= 0) {

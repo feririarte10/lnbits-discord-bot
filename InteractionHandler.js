@@ -73,8 +73,8 @@ class InteractionHandler {
    * @param {Interaction} Interaction The Discord interaction object
    */
   handleInteraction(Interaction) {
-    if (Interaction.commandName == `help`) {
-      const command = this.commands.get(`help`);
+    if (Interaction.commandName == `ayuda`) {
+      const command = this.commands.get(`ayuda`);
       command.execute(Interaction, this.commands);
     } else if (Interaction.isCommand()) {
       const command = this.commands.get(Interaction.commandName);
