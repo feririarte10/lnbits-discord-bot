@@ -26,7 +26,6 @@ class Claim extends Button {
     const lnurl = new LNURL(user.adminkey);
     const lnurlParts = await lnurl.scanLNURL(payUrl);
     const redeemInvoice = await lnurl.doCallback(lnurlParts);
-    console.log(redeemInvoice);
 
     const row = new Discord.MessageActionRow()
       .addComponents([

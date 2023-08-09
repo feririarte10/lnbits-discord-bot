@@ -9,11 +9,11 @@ This command will create an invoice for a user.
 Provides an embed for QR scanning
 */
 
-class PayMe extends Command {
+class Fund extends Command {
   constructor() {
     super();
-    this.name = `payme`;
-    this.description = `Crea un invoice a tu billetera que cualquiera puede pagar.`;
+    this.name = `fund`;
+    this.description = `Fondea tu cuenta de lightning network.`;
     this.options = [
       {
         name: `amount`,
@@ -21,18 +21,12 @@ class PayMe extends Command {
         description: `La cantidad de satoshis a pagar en la factura.`,
         required: true,
       },
-      {
-        name: `description`,
-        type: `STRING`,
-        description: `La descripción de la factura.`,
-        required: false,
-      },
     ];
   }
 
   async execute(Interaction) {
+    await Interaction.deferReply({ ephemeral: true });
     const amount = Interaction.options.get(`amount`);
-    const description = Interaction.options.get(`description`);
     let member;
 
     if (amount.value <= 0) {
@@ -43,7 +37,6 @@ class PayMe extends Command {
       return;
     }
 
-    await Interaction.deferReply();
     try {
       member = await Interaction.guild.members.fetch(Interaction.user.id);
     } catch (err) {
@@ -57,35 +50,31 @@ class PayMe extends Command {
       const uw = new UserWallet(userWallet.adminkey);
       const invoiceDetails = await uw.createInvote(
         amount.value,
-        description.value
+        `Recargar ${amount.value} sats a la billetera de discord del usuario ${member.user.username}`
       );
 
-      // const qrData = await QRCode.toDataURL(invoiceDetails.payment_request);
-      // const buffer = new Buffer.from(qrData.split(`,`)[1], `base64`);
-      // const file = new Discord.MessageAttachment(buffer, `image.png`);
+      const qrData = await QRCode.toDataURL(invoiceDetails.payment_request);
+      const buffer = new Buffer.from(qrData.split(`,`)[1], `base64`);
+      const file = new Discord.MessageAttachment(buffer, `image.png`);
       const embed = new Discord.MessageEmbed()
-        // .setImage(`attachment://image.png`)
+        .setImage(`attachment://image.png`)
         .addField(`Payment Request`, `${invoiceDetails.payment_request}`, true)
         .addField(`amount`, `${amount.value}`, false);
 
-      const row = new Discord.MessageActionRow().addComponents([
-        new Discord.MessageButton({
-          custom_id: `pay`,
-          label: `Pay Now!`,
-          emoji: { name: `💸` },
-          style: `SECONDARY`,
-        }),
-      ]);
-
       Interaction.editReply({
         embeds: [embed],
-        // files: [file],
-        components: [row],
+        files: [file],
+        ephemeral: true,
       });
     } catch (err) {
       console.log(err);
+      Interaction.reply({
+        content: `Ocurrió un error`,
+        ephemeral: true,
+      });
+      return;
     }
   }
 }
 
-module.exports = PayMe;
+module.exports = Fund;
