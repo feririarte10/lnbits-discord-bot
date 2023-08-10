@@ -1,8 +1,9 @@
-const Discord = require(`discord.js`);
+// const Discord = require(`discord.js`);
 const Command = require(`./Command.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
 const { formatter } = require("../utils/helperFormatter.js");
+const { updateUserRank } = require("../database/DonateRank.js");
 
 /*
 This command will show the balance of the mentioned user
@@ -72,6 +73,12 @@ class Donar extends Command {
                     2
                   ).format(amount.value)} satoshis al pozo!`,
                 });
+
+                const updatedRanking = await updateUserRank(
+                  Interaction.user.id,
+                  amount.value
+                );
+
                 return;
               }
             }

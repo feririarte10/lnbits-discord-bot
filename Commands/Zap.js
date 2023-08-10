@@ -1,4 +1,5 @@
 const Command = require(`./Command.js`);
+const Discord = require(`discord.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
 
@@ -84,7 +85,7 @@ class Zap extends Command {
     }
 
     try {
-      await Interaction.deferReply();
+      // await Interaction.deferReply();
       const invoiceDetails = await receiverWallet.createInvote(
         amount.value,
         message.value
@@ -102,11 +103,15 @@ class Zap extends Command {
       //   invoiceDetails: invoicePaymentDetails,
       // });
 
-      await Interaction.editReply({
+      await Interaction.reply({
         content: `${senderData.toString()} envió ${sats} satoshis a ${receiverData.toString()}`,
       });
     } catch (err) {
       console.log(err);
+      await Interaction.reply({
+        content: `Ocurrió un error`,
+        ephemeral: true,
+      });
     }
   }
 }
