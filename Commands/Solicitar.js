@@ -16,13 +16,13 @@ class Solicitar extends Command {
     this.description = `Solicitar que te paguen una factura`;
     this.options = [
       {
-        name: `amount`,
+        name: `monto`,
         type: `INTEGER`,
         description: `La cantidad de satoshis a pagar en la factura`,
         required: true,
       },
       {
-        name: `description`,
+        name: `descripcion`,
         type: `STRING`,
         description: `La descripción de la factura`,
         required: false,
@@ -31,8 +31,8 @@ class Solicitar extends Command {
   }
 
   async execute(Interaction) {
-    const amount = Interaction.options.get(`amount`);
-    const description = Interaction.options.get(`description`);
+    const amount = Interaction.options.get(`monto`);
+    const description = Interaction.options.get(`descripcion`);
     let member;
 
     if (amount.value <= 0) {

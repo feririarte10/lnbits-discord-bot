@@ -16,7 +16,7 @@ class Regalar extends Command {
     this.description = `Crea una factura abierta que cualquier usuario puede reclamar (se descontará de tu saldo)`;
     this.options = [
       {
-        name: `amount`,
+        name: `monto`,
         type: `INTEGER`,
         description: `La cantidad de satoshis a regalar en la factura`,
         required: true,
@@ -25,7 +25,7 @@ class Regalar extends Command {
   }
 
   async execute(Interaction) {
-    const amount = Interaction.options.get(`amount`);
+    const amount = Interaction.options.get(`monto`);
 
     let member;
 

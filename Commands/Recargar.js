@@ -16,7 +16,7 @@ class Recargar extends Command {
     this.description = `Recarga tu cuenta de lightning network con una factura`;
     this.options = [
       {
-        name: `amount`,
+        name: `monto`,
         type: `INTEGER`,
         description: `La cantidad de satoshis a pagar en la factura`,
         required: true,
@@ -26,7 +26,7 @@ class Recargar extends Command {
 
   async execute(Interaction) {
     await Interaction.deferReply({ ephemeral: true });
-    const amount = Interaction.options.get(`amount`);
+    const amount = Interaction.options.get(`monto`);
     let member;
 
     if (amount.value <= 0) {

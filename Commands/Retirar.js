@@ -11,13 +11,13 @@ class Retirar extends Command {
       {
         name: `address`,
         type: `STRING`,
-        description: `LNURL Or address of lightning network`,
+        description: `dirección de lightning network`,
         required: true,
       },
       {
-        name: `amount`,
+        name: `monto`,
         type: `INTEGER`,
-        description: `The amount of satoshis payable in the invoice`,
+        description: `El monto en satoshis que deseas enviar`,
         required: true,
       },
     ];
@@ -34,7 +34,7 @@ class Retirar extends Command {
         const uw = new UserWallet(userWallet.adminkey);
         try {
           const address = Interaction.options.get(`address`).value;
-          const amount = Number(Interaction.options.get(`amount`).value);
+          const amount = Number(Interaction.options.get(`monto`).value);
 
           if (amount <= 0) {
             Interaction.reply({

@@ -15,7 +15,7 @@ class Donar extends Command {
     this.description = `Realiza donaciones al pozo de la crypta.`;
     this.options = [
       {
-        name: `amount`,
+        name: `monto`,
         type: `INTEGER`,
         description: `La cantidad de satoshis a donar`,
         required: true,
@@ -38,7 +38,7 @@ class Donar extends Command {
           const userWalletDetails = await uw.getWalletDetails();
           const satsBalance = userWalletDetails.balance / 1000;
 
-          const amount = Interaction.options.get(`amount`);
+          const amount = Interaction.options.get(`monto`);
 
           if (amount.value <= 0) {
             Interaction.editReply({

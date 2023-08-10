@@ -15,7 +15,7 @@ class Zap extends Command {
         required: true,
       },
       {
-        name: `amount`,
+        name: `monto`,
         type: `INTEGER`,
         description: `La cantidad de satoshis a transferir`,
         required: true,
@@ -32,7 +32,7 @@ class Zap extends Command {
   async execute(Interaction) {
     const sender = Interaction;
     const receiver = Interaction.options.get(`user`);
-    const amount = Interaction.options.get(`amount`);
+    const amount = Interaction.options.get(`monto`);
     const message = Interaction.options.get(`message`)
       ? Interaction.options.get(`message`)
       : { value: `null` };
