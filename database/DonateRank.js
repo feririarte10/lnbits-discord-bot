@@ -64,7 +64,23 @@ const getTopRanking = async (type) => {
   }
 };
 
+const getSumOfDonationAmounts = async (type) => {
+  try {
+    const result = await RankingModel.aggregate([
+      { $match: { type: type } },
+      { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
+    ]);
+
+    if (result.length > 0) return result[0].totalAmount;
+    return 0;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
 module.exports = {
   updateUserRank,
   getTopRanking,
+  getSumOfDonationAmounts,
 };

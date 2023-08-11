@@ -1,6 +1,7 @@
 const Discord = require(`discord.js`);
 const Command = require(`./Command.js`);
 const dedent = require(`dedent-js`);
+const { AuthorConfig } = require("../utils/helperConfig.js");
 
 /*
 This command will show the help message
@@ -31,11 +32,7 @@ class Ayuda extends Command {
 
     const embed = new Discord.MessageEmbed()
       .setColor(`#0099ff`)
-      .setAuthor({
-        name: "LNBot",
-        iconURL:
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Lightning_Network.svg/2048px-Lightning_Network.svg.png",
-      })
+      .setAuthor(AuthorConfig)
       .setURL(`https://wallet.lacrypta.ar`)
       .setDescription(
         dedent(`

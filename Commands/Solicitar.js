@@ -3,6 +3,7 @@ const Command = require(`./Command.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
 const QRCode = require(`qrcode`);
+const { AuthorConfig } = require("../utils/helperConfig.js");
 
 /*
 This command will create an invoice for a user. 
@@ -61,11 +62,7 @@ class Solicitar extends Command {
       );
 
       const embed = new Discord.MessageEmbed()
-        .setAuthor({
-          name: "LNBot",
-          iconURL:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Lightning_Network.svg/2048px-Lightning_Network.svg.png",
-        })
+        .setAuthor(AuthorConfig)
         .addField(
           `Solicitud de pago`,
           `${invoiceDetails.payment_request}`,

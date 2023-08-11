@@ -1,8 +1,12 @@
 const Discord = require(`discord.js`);
 const Command = require(`./Command.js`);
-const { getTopRanking } = require("../database/DonateRank.js");
+const {
+  getTopRanking,
+  getSumOfDonationAmounts,
+} = require("../database/DonateRank.js");
 const dedent = require("dedent-js");
 const { formatter } = require("../utils/helperFormatter.js");
+const { AuthorConfig } = require("../utils/helperConfig.js");
 
 /*
 This command will show the balance of the mentioned user
@@ -62,23 +66,27 @@ class Top extends Command {
         });
 
         const title = isPool
-          ? "Ranking TOP 10 donadores al pozo"
-          : "Ranking TOP 10 usuarios con satoshis regalados";
+          ? "TOP 10 • donadores al pozo"
+          : "TOP 10 • usuarios que regalaron sats";
 
         const informationText = isPool
           ? "Puedes realizar donaciones utilizando el comando /donar <monto>"
           : "Puedes regalar sats con los comandos /zap y /regalar";
 
+        const totalDonated = await getSumOfDonationAmounts(
+          isPool ? "pozo" : "comunidad"
+        );
+
         const embed = new Discord.MessageEmbed()
           .setColor(`#0099ff`)
-          .setAuthor({
-            name: "LNBot",
-            iconURL:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Lightning_Network.svg/2048px-Lightning_Network.svg.png",
-          })
+          .setAuthor(AuthorConfig)
           .setURL(`https://wallet.lacrypta.ar`)
           .addFields(
             { name: title, value: rankOutput },
+            {
+              name: isPool ? "Total donado" : "Total enviado",
+              value: `${formatter(0, 0).format(totalDonated)}`,
+            },
             {
               name: `Información`,
               value: informationText,
