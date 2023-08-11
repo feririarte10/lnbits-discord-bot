@@ -1,8 +1,12 @@
 const RankingModel = require("./models/RankDonations.js");
 
-const createDonationRank = async (discord_id, amount) => {
+const createRank = async (discord_id, type, amount) => {
   try {
-    const newUserRank = new RankingModel({ discord_id, amount });
+    const newUserRank = new RankingModel({
+      discord_id,
+      type,
+      amount,
+    });
     const result = newUserRank.save();
 
     return result;
@@ -11,11 +15,14 @@ const createDonationRank = async (discord_id, amount) => {
   }
 };
 
-const getDonationRank = async (discord_id) => {
+const getRank = async (discord_id, type) => {
   if (!discord_id) return null;
 
   try {
-    const user_rank = await RankingModel.findOne({ discord_id });
+    const user_rank = await RankingModel.findOne({
+      discord_id,
+      type,
+    });
     if (user_rank) return user_rank;
   } catch (err) {
     return null;
@@ -24,9 +31,9 @@ const getDonationRank = async (discord_id) => {
   return null;
 };
 
-const updateUserRank = async (discord_id, new_amount) => {
+const updateUserRank = async (discord_id, type, new_amount) => {
   try {
-    const userRank = await getDonationRank(discord_id);
+    const userRank = await getRank(discord_id, type);
 
     if (userRank) {
       userRank.amount = userRank.amount + new_amount;
@@ -34,7 +41,7 @@ const updateUserRank = async (discord_id, new_amount) => {
 
       return userRank;
     } else {
-      const new_rank = await createDonationRank(discord_id, new_amount);
+      const new_rank = await createRank(discord_id, type, new_amount);
 
       return new_rank;
     }
@@ -44,9 +51,11 @@ const updateUserRank = async (discord_id, new_amount) => {
   }
 };
 
-const getTopRanking = async () => {
+const getTopRanking = async (type) => {
   try {
-    const topUsers = await RankingModel.find({}).sort({ amount: -1 }).limit(10);
+    const topUsers = await RankingModel.find({ type })
+      .sort({ amount: -1 })
+      .limit(10);
 
     return topUsers;
   } catch (err) {

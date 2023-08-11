@@ -54,21 +54,21 @@ class Regalar extends Command {
 
       const lnurlw = new LNURLw(userWallet.adminkey);
       const withdrawlLink = await lnurlw.createWithdrawlLink(
-        `Retiro de ${amount.value} sats - ${Interaction.user.username}`,
+        `Regalo de ${amount.value} sats de ${Interaction.user.username}`,
         amount.value
       );
 
       const row = new Discord.MessageActionRow().addComponents([
         new Discord.MessageButton({
           custom_id: `claim`,
-          label: `Reclamar satoshis`,
+          label: `Reclamar sats`,
           emoji: { name: `💸` },
           style: `SECONDARY`,
         }),
       ]);
 
       const msgContent = dedent(`
-        ${Interaction.user.username} está regalando ${amount.value} satoshis!
+        <@${Interaction.user.id}> está regalando ${amount.value} satoshis!
         LNURL: \`${withdrawlLink.lnurl}\`
         `);
 

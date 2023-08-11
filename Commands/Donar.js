@@ -67,18 +67,14 @@ class Donar extends Command {
               const payment = await uw.payInvoice(outgoingInvoice.invoice);
 
               if (payment) {
+                await updateUserRank(Interaction.user.id, "pozo", amount.value);
+
                 Interaction.editReply({
                   content: `${senderData.toString()} ha donado ${formatter(
                     0,
                     2
                   ).format(amount.value)} satoshis al pozo!`,
                 });
-
-                const updatedRanking = await updateUserRank(
-                  Interaction.user.id,
-                  amount.value
-                );
-
                 return;
               }
             }

@@ -51,7 +51,7 @@ class Pay extends Button {
             const row = new Discord.MessageActionRow().addComponents([
               new Discord.MessageButton({
                 custom_id: `pay`,
-                label: `Payed by @${Interaction.user.username}`,
+                label: `Pagada por @${Interaction.user.username}`,
                 emoji: { name: `💸` },
                 style: `SECONDARY`,
                 disabled: true,

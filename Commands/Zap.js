@@ -1,7 +1,7 @@
 const Command = require(`./Command.js`);
-const Discord = require(`discord.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
+const { updateUserRank } = require("../database/DonateRank.js");
 
 class Zap extends Command {
   constructor() {
@@ -36,7 +36,7 @@ class Zap extends Command {
     const amount = Interaction.options.get(`monto`);
     const message = Interaction.options.get(`message`)
       ? Interaction.options.get(`message`)
-      : { value: `null` };
+      : { value: `Envío de sats vía La Crypta` };
 
     if (amount.value <= 0) {
       Interaction.reply({
@@ -87,7 +87,7 @@ class Zap extends Command {
     try {
       // await Interaction.deferReply();
       const invoiceDetails = await receiverWallet.createInvote(
-        amount.value,
+        sats,
         message.value
       );
 
@@ -95,17 +95,13 @@ class Zap extends Command {
         invoiceDetails.payment_request
       );
 
-      // console.log({
-      //   sender: sender.user.id,
-      //   receiver: receiver.user.id,
-      //   amount: amount.value,
-      //   message: message.value,
-      //   invoiceDetails: invoicePaymentDetails,
-      // });
+      if (invoicePaymentDetails) {
+        await updateUserRank(Interaction.user.id, "comunidad", sats);
 
-      await Interaction.reply({
-        content: `${senderData.toString()} envió ${sats} satoshis a ${receiverData.toString()}`,
-      });
+        await Interaction.reply({
+          content: `${senderData.toString()} envió ${sats} satoshis a ${receiverData.toString()}`,
+        });
+      }
     } catch (err) {
       console.log(err);
       await Interaction.reply({

@@ -60,11 +60,7 @@ class Solicitar extends Command {
         description ? description.value : ""
       );
 
-      // const qrData = await QRCode.toDataURL(invoiceDetails.payment_request);
-      // const buffer = new Buffer.from(qrData.split(`,`)[1], `base64`);
-      // const file = new Discord.MessageAttachment(buffer, `image.png`);
       const embed = new Discord.MessageEmbed()
-        // .setImage(`attachment://image.png`)
         .setAuthor({
           name: "LNBot",
           iconURL:
@@ -88,7 +84,6 @@ class Solicitar extends Command {
 
       Interaction.editReply({
         embeds: [embed],
-        // files: [file],
         components: [row],
       });
     } catch (err) {
