@@ -5,6 +5,7 @@ const UserWallet = require(`../lnbitsAPI/User.js`);
 const { formatter } = require("../utils/helperFormatter.js");
 const { updateUserRank } = require("../database/DonateRank.js");
 const { AuthorConfig } = require("../utils/helperConfig.js");
+const { validateAmountAndBalance } = require("../utils/helperFunctions.js");
 
 /*
 This command will show the balance of the mentioned user
@@ -26,7 +27,6 @@ class Donar extends Command {
   }
 
   async execute(Interaction) {
-    await Interaction.deferReply();
     const um = new UserManager();
     try {
       const senderData = await Interaction.guild.members.fetch(
@@ -38,76 +38,71 @@ class Donar extends Command {
         const uw = new UserWallet(userWallet.adminkey);
         try {
           const userWalletDetails = await uw.getWalletDetails();
-          const satsBalance = userWalletDetails.balance / 1000;
-
           const amount = Interaction.options.get(`monto`);
 
-          if (amount.value <= 0) {
-            Interaction.editReply({
-              content: `No puedes usar números negativos`,
-              ephemeral: true,
-            });
-            return;
-          }
+          const isValidAmount = validateAmountAndBalance(
+            Interaction,
+            Number(amount?.value),
+            userWalletDetails.balance
+          );
 
-          if (satsBalance < amount.value) {
-            Interaction.editReply({
-              content: `No tienes balance suficiente para pagar esta factura. \nTu balance: ${satsBalance} - Requerido: ${amount.value}`,
-              ephemeral: true,
-            });
-            return;
-          }
+          if (isValidAmount) {
+            await Interaction.deferReply();
 
-          try {
-            const outgoingInvoice = await uw.createOutgoingInvoice(
-              process.env.POOL_ADDRESS,
-              amount.value
-            );
+            try {
+              const outgoingInvoice = await uw.createOutgoingInvoice(
+                process.env.POOL_ADDRESS,
+                amount.value
+              );
 
-            if (outgoingInvoice && outgoingInvoice.invoice) {
-              const payment = await uw.payInvoice(outgoingInvoice.invoice);
+              if (outgoingInvoice && outgoingInvoice.invoice) {
+                const payment = await uw.payInvoice(outgoingInvoice.invoice);
 
-              if (payment) {
-                const updatedRank = await updateUserRank(
-                  Interaction.user.id,
-                  "pozo",
-                  amount.value
-                );
-
-                const embed = new Discord.MessageEmbed()
-                  .setColor(`#0099ff`)
-                  .setAuthor(AuthorConfig)
-                  .setURL(`https://wallet.lacrypta.ar`)
-                  .addFields(
-                    {
-                      name: `Donación a ${process.env.POOL_ADDRESS}`,
-                      value: `${senderData.toString()} ha donado ${formatter(
-                        0,
-                        2
-                      ).format(amount.value)} satoshis al pozo!`,
-                    },
-                    {
-                      name: "Total donado",
-                      value:
-                        updatedRank && updatedRank.amount
-                          ? `${updatedRank.amount}`
-                          : "0",
-                    }
+                if (payment) {
+                  const updatedRank = await updateUserRank(
+                    Interaction.user.id,
+                    "pozo",
+                    amount.value
                   );
 
-                Interaction.editReply({ embeds: [embed] });
-                return;
+                  const embed = new Discord.MessageEmbed()
+                    .setColor(`#0099ff`)
+                    .setAuthor(AuthorConfig)
+                    .setURL(`https://wallet.lacrypta.ar`)
+                    .addFields(
+                      {
+                        name: `Donación a ${process.env.POOL_ADDRESS}`,
+                        value: `${senderData.toString()} ha donado ${formatter(
+                          0,
+                          2
+                        ).format(amount.value)} satoshis al pozo!`,
+                      },
+                      {
+                        name: "Total donado",
+                        value:
+                          updatedRank && updatedRank.amount
+                            ? `${updatedRank.amount}`
+                            : "0",
+                      }
+                    );
+
+                  Interaction.editReply({ embeds: [embed] });
+                  return;
+                }
               }
+            } catch (err) {
+              console.log(err);
+              Interaction.editReply({
+                content: `Ocurrió un error`,
+              });
+              return;
             }
-          } catch (err) {
-            console.log(err);
-            Interaction.editReply({
-              content: `Ocurrió un error`,
-            });
-            return;
           }
         } catch (err) {
           console.log(err);
+          Interaction.editReply({
+            content: `Ocurrió un error.`,
+          });
         }
       } else {
         Interaction.editReply({

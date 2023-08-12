@@ -1,6 +1,7 @@
 const Command = require(`./Command.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
+const { validateAmountAndBalance } = require("../utils/helperFunctions.js");
 
 class Retirar extends Command {
   constructor() {
@@ -24,7 +25,6 @@ class Retirar extends Command {
   }
 
   async execute(Interaction) {
-    await Interaction.deferReply({ ephemeral: true });
     const um = new UserManager();
 
     try {
@@ -32,54 +32,46 @@ class Retirar extends Command {
 
       if (userWallet.adminkey) {
         const uw = new UserWallet(userWallet.adminkey);
+        const address = Interaction.options.get(`address`).value;
+        const amount = Number(Interaction.options.get(`monto`).value);
+        const senderWalletDetails = await uw.getWalletDetails();
+
+        const isValidAmount = validateAmountAndBalance(
+          Interaction,
+          amount,
+          senderWalletDetails.balance
+        );
+
         try {
-          const address = Interaction.options.get(`address`).value;
-          const amount = Number(Interaction.options.get(`monto`).value);
+          if (isValidAmount) {
+            const invoice = await uw.createOutgoingInvoice(address, amount);
+            if (invoice && invoice.invoice) {
+              const payment = await uw.payInvoice(invoice.invoice);
 
-          if (amount <= 0) {
-            Interaction.reply({
-              content: `No puedes usar números negativos`,
-              ephemeral: true,
-            });
-            return;
-          }
-
-          const senderWalletDetails = await uw.getWalletDetails();
-          if (senderWalletDetails.balance / 1000 - amount < 0) {
-            Interaction.editReply({
-              content: `No tienes suficiente balance en tu billetera.`,
-              ephemeral: true,
-            });
-            return;
-          }
-
-          const invoice = await uw.createOutgoingInvoice(address, amount);
-          if (invoice && invoice.invoice) {
-            const payment = await uw.payInvoice(invoice.invoice);
-
-            if (payment) {
-              Interaction.editReply({
-                content: `Enviaste ${amount} satoshis a ${address} desde tu billetera`,
-                ephemeral: true,
-              });
+              if (payment) {
+                Interaction.reply({
+                  content: `Enviaste ${amount} satoshis a ${address} desde tu billetera`,
+                  ephemeral: true,
+                });
+              }
             }
           }
         } catch (err) {
-          Interaction.editReply({
+          Interaction.reply({
             content: `Ocurrió un error`,
             ephemeral: true,
           });
           console.log(err);
         }
       } else {
-        Interaction.editReply({
+        Interaction.reply({
           content: `No tienes una billetera`,
           ephemeral: true,
         });
       }
     } catch (err) {
       console.log(err);
-      Interaction.editReply({
+      Interaction.reply({
         content: `Ocurrió un error`,
         ephemeral: true,
       });

@@ -2,6 +2,7 @@ const Command = require(`./Command.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const UserWallet = require(`../lnbitsAPI/User.js`);
 const { updateUserRank } = require("../database/DonateRank.js");
+const { validateAmountAndBalance } = require("../utils/helperFunctions.js");
 
 class Zap extends Command {
   constructor() {
@@ -47,9 +48,6 @@ class Zap extends Command {
     }
 
     const sats = amount.value;
-    // const btc = (sats / 100000000).toFixed(8).replace(/\.?0+$/, ``);
-    // const valueString = `${sats} satoshis / ฿${btc}`;
-
     const senderData = await Interaction.guild.members.fetch(sender.user.id);
     const receiverData = await Interaction.guild.members.fetch(
       receiver.user.id
@@ -76,38 +74,38 @@ class Zap extends Command {
     const senderWalletDetails = await senderWallet.getWalletDetails();
     const receiverWallet = new UserWallet(receiverWalletData.adminkey);
 
-    if (senderWalletDetails.balance / 1000 - sats < 0) {
-      Interaction.reply({
-        content: `No tienes suficiente balance en tu billetera.`,
-        ephemeral: true,
-      });
-      return;
-    }
+    const isValidAmount = validateAmountAndBalance(
+      Interaction,
+      Number(sats),
+      senderWalletDetails.balance
+    );
 
-    try {
-      // await Interaction.deferReply();
-      const invoiceDetails = await receiverWallet.createInvote(
-        sats,
-        message.value
-      );
+    if (isValidAmount) {
+      try {
+        // await Interaction.deferReply();
+        const invoiceDetails = await receiverWallet.createInvote(
+          sats,
+          message.value
+        );
 
-      const invoicePaymentDetails = await senderWallet.payInvoice(
-        invoiceDetails.payment_request
-      );
+        const invoicePaymentDetails = await senderWallet.payInvoice(
+          invoiceDetails.payment_request
+        );
 
-      if (invoicePaymentDetails) {
-        await updateUserRank(Interaction.user.id, "comunidad", sats);
+        if (invoicePaymentDetails) {
+          await updateUserRank(Interaction.user.id, "comunidad", sats);
 
+          await Interaction.reply({
+            content: `${senderData.toString()} envió ${sats} satoshis a ${receiverData.toString()}`,
+          });
+        }
+      } catch (err) {
+        console.log(err);
         await Interaction.reply({
-          content: `${senderData.toString()} envió ${sats} satoshis a ${receiverData.toString()}`,
+          content: `Ocurrió un error`,
+          ephemeral: true,
         });
       }
-    } catch (err) {
-      console.log(err);
-      await Interaction.reply({
-        content: `Ocurrió un error`,
-        ephemeral: true,
-      });
     }
   }
 }

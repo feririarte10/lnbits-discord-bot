@@ -6,6 +6,8 @@ const LNURLw = require(`../lnbitsAPI/LNURLw.js`);
 const dedent = require(`dedent-js`);
 const { AuthorConfig } = require("../utils/helperConfig.js");
 const { createFaucet } = require("../database/FaucetService.js");
+const { validateAmountAndBalance } = require("../utils/helperFunctions.js");
+const UserWallet = require("../lnbitsAPI/User.js");
 
 /*
 This command will create an invoice for a user allowing anyone to claim it.
@@ -40,12 +42,11 @@ class Regalar extends Command {
 
     if (!amount || !uses || amount.value <= 0 || uses.value <= 0) {
       Interaction.reply({
-        content: `No puedes usar números negativos`,
+        content: `No puedes usar números negativos o flotantes`,
         ephemeral: true,
       });
       return;
     }
-
     const satsForUser = Number((amount.value / uses.value).toFixed(0));
 
     if (satsForUser < 1) {
@@ -55,8 +56,6 @@ class Regalar extends Command {
       });
       return;
     }
-
-    await Interaction.deferReply();
     try {
       member = await Interaction.guild.members.fetch(Interaction.user.id);
     } catch (err) {
@@ -65,58 +64,69 @@ class Regalar extends Command {
 
     try {
       const um = new UserManager();
-      const userWallet = await um.getUserWallet(member.user.id);
-      console.log(`userWallet`, userWallet);
+      const userWallet = await um.getUserWallet(Interaction.user.id);
 
-      const ext = new Extensions(userWallet.user);
-      await ext.enable(`withdraw`);
+      const uw = new UserWallet(userWallet.adminkey);
+      const userWalletDetails = await uw.getWalletDetails();
 
-      const lnurlw = new LNURLw(userWallet.adminkey);
-      const withdrawlLink = await lnurlw.createWithdrawlLink(
-        `Regalo de ${amount.value} sats de ${Interaction.user.username}`,
-        satsForUser,
-        uses.value
+      const isValidAmount = validateAmountAndBalance(
+        Interaction,
+        Number(amount?.value),
+        userWalletDetails.balance
       );
 
-      if (withdrawlLink) {
-        const addedFaucet = await createFaucet(
-          member.user.id,
-          withdrawlLink.id
+      if (isValidAmount) {
+        await Interaction.deferReply();
+        const ext = new Extensions(userWallet.user);
+        await ext.enable(`withdraw`);
+
+        const lnurlw = new LNURLw(userWallet.adminkey);
+        const withdrawlLink = await lnurlw.createWithdrawlLink(
+          `Regalo de ${amount.value} sats de ${Interaction.user.username}`,
+          satsForUser,
+          uses.value
         );
 
-        const embed = new Discord.MessageEmbed()
-          .setAuthor(AuthorConfig)
-          .addFields([
-            {
-              name: `Faucet disponible:`,
-              value: `${member.toString()} está regalando ${satsForUser} sats a ${
-                uses.value === 1
-                  ? "1 persona"
-                  : `${uses.value} personas \nPresiona reclamar para obtener tu premio. \n\n`
-              }`,
-            },
-            {
-              name: `Restantes: ${amount.value}/${amount.value} sats`,
-              value: `${":x:".repeat(uses.value)} \n\n`,
-            },
-          ])
-          .setFooter({
-            text: `Identificador: ${addedFaucet._id}`,
+        if (withdrawlLink) {
+          const addedFaucet = await createFaucet(
+            member.user.id,
+            withdrawlLink.id
+          );
+
+          const embed = new Discord.MessageEmbed()
+            .setAuthor(AuthorConfig)
+            .addFields([
+              {
+                name: `Faucet disponible:`,
+                value: `${member.toString()} está regalando ${satsForUser} sats a ${
+                  uses.value === 1
+                    ? "1 persona"
+                    : `${uses.value} personas \nPresiona reclamar para obtener tu premio. \n\n`
+                }`,
+              },
+              {
+                name: `Restantes: ${amount.value}/${amount.value} sats`,
+                value: `${":x:".repeat(uses.value)} \n\n`,
+              },
+            ])
+            .setFooter({
+              text: `Identificador: ${addedFaucet._id}`,
+            });
+
+          const row = new Discord.MessageActionRow().addComponents([
+            new Discord.MessageButton({
+              custom_id: `claim`,
+              label: `Reclamar`,
+              emoji: { name: `💸` },
+              style: `SECONDARY`,
+            }),
+          ]);
+
+          Interaction.editReply({
+            embeds: [embed],
+            components: [row],
           });
-
-        const row = new Discord.MessageActionRow().addComponents([
-          new Discord.MessageButton({
-            custom_id: `claim`,
-            label: `Reclamar`,
-            emoji: { name: `💸` },
-            style: `SECONDARY`,
-          }),
-        ]);
-
-        Interaction.editReply({
-          embeds: [embed],
-          components: [row],
-        });
+        }
       }
     } catch (err) {
       console.log(err);

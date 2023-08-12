@@ -126,7 +126,8 @@ class Claim extends Button {
             }
           } catch (err) {
             Interaction.reply({
-              content: "Ocurrió un error al reclamar la factura",
+              content:
+                "Ocurrió un error al reclamar la factura. \nEl faucet fue reclamado en su totalidad o el usuario que está regalando los fondos se ha quedado sin saldo suficiente para entregarte el premio.",
               ephemeral: true,
             });
             console.log(err);
@@ -140,48 +141,6 @@ class Claim extends Button {
         }
       }
     }
-
-    // const content = Interaction.message.content;
-    // const subStr = content.indexOf(">");
-    // let senderUserId = subStr !== -1 ? content.substring(2, subStr) : "";
-
-    // if (senderUserId === Interaction.user.id) {
-    //   Interaction.reply({
-    //     content: "No puedes reclamar tu propia factura",
-    //     ephemeral: true,
-    //   });
-
-    //   return;
-    // }
-
-    // const payUrl = content.split(`LNURL: `)[1].replace(/`/g, ``);
-
-    // const u = new UserManager();
-    // const user = await u.getOrCreateWallet(
-    //   Interaction.user.username,
-    //   Interaction.user.id
-    // );
-    // const lnurl = new LNURL(user.adminkey);
-    // const lnurlParts = await lnurl.scanLNURL(payUrl);
-    // const redeemInvoice = await lnurl.doCallback(lnurlParts);
-
-    // const row = new Discord.MessageActionRow().addComponents([
-    //   new Discord.MessageButton({
-    //     custom_id: `claim`,
-    //     label: `Reclamado por @${Interaction.user.username}`,
-    //     emoji: { name: `💸` },
-    //     style: `SECONDARY`,
-    //     disabled: true,
-    //   }),
-    // ]);
-
-    // if (lnurlParts) {
-    //   const sats = lnurlParts.maxWithdrawable / 1000;
-    //   if (senderUserId && sats)
-    //     await updateUserRank(senderUserId, "comunidad", sats);
-    // }
-
-    // await Interaction.update({ components: [row] });
   }
 }
 
