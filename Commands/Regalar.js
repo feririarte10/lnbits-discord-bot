@@ -4,6 +4,8 @@ const Extensions = require(`../lnbitsAPI/Extensions.js`);
 const UserManager = require(`../lnbitsAPI/UserManager.js`);
 const LNURLw = require(`../lnbitsAPI/LNURLw.js`);
 const dedent = require(`dedent-js`);
+const { AuthorConfig } = require("../utils/helperConfig.js");
+const { createFaucet } = require("../database/FaucetService.js");
 
 /*
 This command will create an invoice for a user allowing anyone to claim it.
@@ -18,7 +20,13 @@ class Regalar extends Command {
       {
         name: `monto`,
         type: `INTEGER`,
-        description: `La cantidad de satoshis a regalar en la factura`,
+        description: `La cantidad de satoshis a regalar en total`,
+        required: true,
+      },
+      {
+        name: `usos`,
+        type: `INTEGER`,
+        description: `Cantidad de usuarios que pueden reclamar (cada uno recibe: total sats / users)`,
         required: true,
       },
     ];
@@ -26,12 +34,23 @@ class Regalar extends Command {
 
   async execute(Interaction) {
     const amount = Interaction.options.get(`monto`);
+    const uses = Interaction.options.get(`usos`);
 
     let member;
 
-    if (amount.value <= 0) {
+    if (!amount || !uses || amount.value <= 0 || uses.value <= 0) {
       Interaction.reply({
         content: `No puedes usar números negativos`,
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const satsForUser = Number((amount.value / uses.value).toFixed(0));
+
+    if (satsForUser < 1) {
+      Interaction.reply({
+        content: `Ocurrió un error en la división cantidad de sats / usuarios`,
         ephemeral: true,
       });
       return;
@@ -55,24 +74,50 @@ class Regalar extends Command {
       const lnurlw = new LNURLw(userWallet.adminkey);
       const withdrawlLink = await lnurlw.createWithdrawlLink(
         `Regalo de ${amount.value} sats de ${Interaction.user.username}`,
-        amount.value
+        satsForUser,
+        uses.value
       );
 
-      const row = new Discord.MessageActionRow().addComponents([
-        new Discord.MessageButton({
-          custom_id: `claim`,
-          label: `Reclamar sats`,
-          emoji: { name: `💸` },
-          style: `SECONDARY`,
-        }),
-      ]);
+      if (withdrawlLink) {
+        const addedFaucet = await createFaucet(
+          member.user.id,
+          withdrawlLink.id
+        );
 
-      const msgContent = dedent(`
-        <@${Interaction.user.id}> está regalando ${amount.value} satoshis!
-        LNURL: \`${withdrawlLink.lnurl}\`
-        `);
+        const embed = new Discord.MessageEmbed()
+          .setAuthor(AuthorConfig)
+          .addFields([
+            {
+              name: `Faucet disponible:`,
+              value: `${member.toString()} está regalando ${satsForUser} sats a ${
+                uses.value === 1
+                  ? "1 persona"
+                  : `${uses.value} personas \nPresiona reclamar para obtener tu premio. \n\n`
+              }`,
+            },
+            {
+              name: `Restantes: ${amount.value}/${amount.value} sats`,
+              value: `${":x:".repeat(uses.value)} \n\n`,
+            },
+          ])
+          .setFooter({
+            text: `Identificador: ${addedFaucet._id}`,
+          });
 
-      Interaction.editReply({ content: msgContent, components: [row] });
+        const row = new Discord.MessageActionRow().addComponents([
+          new Discord.MessageButton({
+            custom_id: `claim`,
+            label: `Reclamar`,
+            emoji: { name: `💸` },
+            style: `SECONDARY`,
+          }),
+        ]);
+
+        Interaction.editReply({
+          embeds: [embed],
+          components: [row],
+        });
+      }
     } catch (err) {
       console.log(err);
       Interaction.editReply({
