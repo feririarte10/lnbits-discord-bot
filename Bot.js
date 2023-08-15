@@ -1,4 +1,4 @@
-const Discord = require(`discord.js`);
+const { Client, Partials, GatewayIntentBits } = require(`discord.js`);
 const InteractionHandler = require(`./InteractionHandler`);
 const MessageHandler = require(`./MessageHandler`);
 const ReactionHandler = require(`./ReactionHandler`);
@@ -12,13 +12,9 @@ class Bot {
    * @constructor
    */
   constructor() {
-    this.client = new Discord.Client({
-      partials: [`CHANNEL`, `MESSAGE`, `REACTION`, `USER`],
-      intents: [
-        Discord.Intents.FLAGS.GUILDS,
-        Discord.Intents.FLAGS.GUILD_MESSAGES,
-        Discord.Intents.FLAGS.GUILD_MEMBERS,
-      ],
+    this.client = new Client({
+      partials: [Object.keys(Partials)],
+      intents: [Object.keys(GatewayIntentBits)],
     });
     this.InteractionHandler = new InteractionHandler(this.client);
     this.MessageHandler = new MessageHandler();

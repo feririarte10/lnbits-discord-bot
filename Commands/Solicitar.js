@@ -63,12 +63,16 @@ class Solicitar extends Command {
 
       const embed = new Discord.MessageEmbed()
         .setAuthor(AuthorConfig)
-        .addField(
-          `Solicitud de pago`,
-          `${invoiceDetails.payment_request}`,
-          true
-        )
-        .addField(`monto (sats)`, `${amount.value}`, false);
+        .addFields([
+          {
+            name: `Solicitud de pago`,
+            value: `${invoiceDetails.payment_request}`,
+          },
+          {
+            name: `monto (sats)`,
+            value: `${amount.value}`,
+          },
+        ]);
 
       const row = new Discord.MessageActionRow().addComponents([
         new Discord.MessageButton({
@@ -85,6 +89,10 @@ class Solicitar extends Command {
       });
     } catch (err) {
       console.log(err);
+      Interaction.editReply({
+        content: `Ocurrió un error`,
+        ephemeral: true,
+      });
     }
   }
 }

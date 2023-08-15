@@ -6,6 +6,7 @@ const { updateUserRank } = require("../database/DonateRank.js");
 const { getFaucet, updateFaucet } = require("../database/FaucetService.js");
 const LNURLw = require("../lnbitsAPI/LNURLw");
 const { AuthorConfig } = require("../utils/helperConfig.js");
+const dedent = require("dedent-js");
 
 /*
 This command will claim a LNurl
@@ -77,7 +78,18 @@ class Claim extends Button {
                 const fieldInfo = Interaction.message.embeds[0].fields[0];
                 const newUsed = withdrawLink.used + 1;
 
-                await updateFaucet(faucetId, Interaction.user.id);
+                const updatedFaucet = await updateFaucet(
+                  faucetId,
+                  Interaction.user.id
+                );
+
+                let claimersOutput = ``;
+                updatedFaucet.claimers_ids.forEach(async (claimer) => {
+                  claimersOutput += `
+                    <@${claimer}>
+                  `;
+                  claimersOutput = dedent(claimersOutput);
+                });
 
                 const embed = new Discord.MessageEmbed()
                   .setAuthor(AuthorConfig)
@@ -96,6 +108,10 @@ class Claim extends Button {
                           : ""
                       } \n\n`,
                     },
+                    {
+                      name: "Reclamado por:",
+                      value: claimersOutput,
+                    },
                   ])
                   .setFooter({
                     text: `Identificador: ${faucetId}`,
@@ -105,7 +121,9 @@ class Claim extends Button {
                 const row = new Discord.MessageActionRow().addComponents([
                   new Discord.MessageButton({
                     custom_id: `claim`,
-                    label: `Reclamar`,
+                    label: disabledFaucet
+                      ? "Todos los sats han sido reclamados"
+                      : `Reclamar`,
                     emoji: { name: `💸` },
                     style: `SECONDARY`,
                     disabled: disabledFaucet,
